@@ -33,7 +33,27 @@ module.exports = function (connect) {
 
     this.filename = options.filename;
     this.db = new Nedb(options.filename);
-    this.db.loadDatabase(callback);
+    this.db.loadDatabase(function() {
+      // NB mvanderw 20131209:
+      // I thought I read somewhere NEDB compacts its database on load,
+      // but this does not seem to be happening in the Express session store.
+      // At any rate, we can force compacting here, as well as periodically
+      // using the persistence object's methods. There's probably little to no
+      // point to periodic compaction though since NEDB stores its working db
+      // in memory anyway.
+
+      // Compact on load.
+      // https://github.com/louischatriot/nedb/blob/master/lib/persistence.js#L148
+      this.db.persistence.compactDatafile();
+
+      // Compact periodically. Minimum interval is 5000ms. Sometimes
+      // (marginally) useful while developing.
+      // https://github.com/louischatriot/nedb/blob/master/lib/persistence.js#L157
+      // this.db.persistence.setAutocompactionInterval(5000);
+
+      // Sucker punch.
+      callback();
+    }.bind(this));
   }
 
   // Inherit from Connect's session store

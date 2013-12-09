@@ -22,7 +22,7 @@
     "url": "git@github.com:louischatriot/connect-nedb-session.git"
   },
   "dependencies": {
-    "nedb": "0.0.6"
+    "nedb": ""
   },
   "devDependencies": {
     "chai": "1.0.x",
